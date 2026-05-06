@@ -5,7 +5,7 @@ title: Writing Style
 category: CORE
 tags: [writing-style, core]
 review_status: draft
-evidence_status: manual
+evidence_status: reviewed
 rag_check_frequency: manual
 ---
 

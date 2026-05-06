@@ -34,6 +34,7 @@ if (!GENERATED_ROOT) {
 }
 
 const EXCLUDED_TOP_LEVEL_DIRS = new Set(['50_PROMPTS', '90_LOGS']);
+const WIKILINK_REGEX = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g;
 
 function shouldSkipWikiFile(fullPath: string, rootDir: string): boolean {
   const relative = path.relative(rootDir, fullPath);
@@ -91,9 +92,28 @@ export function getPageBySlug(slug: string): WikiPage | undefined {
   return getAllWikiPages().find((page) => page.slug === slug);
 }
 
+function normalize(value: string): string {
+  return value.trim().toLowerCase();
+}
+
 export function getBacklinks(slug: string): WikiPage[] {
-  const token = `[[${slug}]]`;
-  return getAllWikiPages().filter((page) => page.content.includes(token));
+  const currentPage = getPageBySlug(slug);
+  if (!currentPage) return [];
+
+  const targets = new Set([
+    normalize(currentPage.slug),
+    normalize(currentPage.title),
+    ...currentPage.aliases.map((alias) => normalize(alias))
+  ]);
+
+  return getAllWikiPages().filter((page) => {
+    if (page.slug === currentPage.slug) return false;
+
+    return Array.from(page.content.matchAll(WIKILINK_REGEX)).some((match) => {
+      const target = normalize(match[1] ?? '');
+      return target.length > 0 && targets.has(target);
+    });
+  });
 }
 
 export function getCategories(): string[] {
@@ -129,7 +149,7 @@ function resolveWikiTarget(target: string): WikiPage | undefined {
 }
 
 export function convertWikiLinks(content: string): string {
-  return content.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, target: string, label?: string) => {
+  return content.replace(WIKILINK_REGEX, (_, target: string, label?: string) => {
     const cleanTarget = target.trim();
     const cleanLabel = (label ?? target).trim();
     const resolvedPage = resolveWikiTarget(cleanTarget);
