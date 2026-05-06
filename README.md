@@ -4,8 +4,10 @@
 
 ## Vercel Deployment Settings
 
-Use the following settings in Vercel:
+Recommended Vercel settings:
 
-- Root Directory: `repository root`
-- Build Command: `cd site && npm install && npm run build`
+- Root Directory: `./`
+- Framework Preset: `Next.js`
+- Build Command: `npm run build`
 - Output Directory: `site/.next`
+- Environment Variables: none required for MVP
