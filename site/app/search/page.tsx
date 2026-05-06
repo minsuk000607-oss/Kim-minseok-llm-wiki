@@ -1,41 +1,23 @@
 'use client';
-
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import data from '../../wiki-index.json';
+import { EmptyState, SearchBar, SearchResultCard, SectionHeader } from '../../components/ui';
 
-function normalize(value: string): string {
-  return value.toLowerCase();
-}
+const normalize = (v: string) => v.toLowerCase();
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
   const results = useMemo(() => {
     const q = normalize(query.trim());
-    if (!q) return data;
-
-    return data.filter((item) => {
-      const title = normalize(item.title ?? '');
-      const content = normalize(item.content ?? '');
-      const aliases = Array.isArray(item.aliases) ? item.aliases : [];
-      const tags = Array.isArray(item.tags) ? item.tags : [];
-
-      return (
-        title.includes(q) ||
-        content.includes(q) ||
-        aliases.some((alias) => normalize(String(alias)).includes(q)) ||
-        tags.some((tag) => normalize(String(tag)).includes(q))
-      );
-    });
+    if (!q) return [];
+    return data.filter((item) => [item.title, item.content, ...(item.aliases ?? []), ...(item.tags ?? [])].some((x) => normalize(String(x ?? '')).includes(q)));
   }, [query]);
 
-  return (
-    <div>
-      <h1>Search</h1>
-      <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="검색어" />
-      <ul>
-        {results.map((item) => <li key={item.slug}><Link href={`/wiki/${item.slug}`}>{item.title}</Link></li>)}
-      </ul>
-    </div>
-  );
+  return <div className="grid">
+    <SectionHeader title="Search" subtitle="문서 제목, 본문, 태그, alias를 탐색합니다." />
+    <section className="surface" style={{padding:16}}><SearchBar value={query} onChange={setQuery} /></section>
+    {!query && <EmptyState title="검색어를 입력하세요" description="연구 노트의 연결점을 빠르게 찾을 수 있습니다." />}
+    {query && results.length===0 && <EmptyState title="결과 없음" description="다른 키워드 또는 태그를 시도해보세요." />}
+    <div className="grid">{results.map((item)=><SearchResultCard key={item.slug} href={`/wiki/${item.slug}`} title={item.title} meta={`${item.category} · ${item.slug}`} snippet={(item.content||'').slice(0,130)} />)}</div>
+  </div>;
 }
