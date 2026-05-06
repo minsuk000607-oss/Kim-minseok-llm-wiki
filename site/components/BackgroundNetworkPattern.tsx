@@ -1,14 +1,3 @@
 export function BackgroundNetworkPattern() {
-  return (
-    <div
-      aria-hidden
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: -1,
-        background:
-          'radial-gradient(circle at 20% 20%, rgba(96,165,250,0.15), transparent 40%), radial-gradient(circle at 80% 10%, rgba(167,139,250,0.12), transparent 35%), #030712'
-      }}
-    />
-  );
+  return <div aria-hidden style={{position:'fixed',inset:0,zIndex:-1,background:'radial-gradient(1000px 600px at 10% -20%, rgba(88,136,255,.22), transparent 60%), radial-gradient(700px 400px at 85% 0%, rgba(154,123,255,.16), transparent 55%), linear-gradient(180deg,#05070d,#070b13 60%,#04060b)',}}><svg width="100%" height="100%" style={{opacity:.16}}><defs><pattern id="p" width="60" height="60" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#9eb8ff"/><path d="M2 2 L60 2 M2 2 L2 60" stroke="#6f85b8" strokeWidth=".35"/></pattern></defs><rect width="100%" height="100%" fill="url(#p)"/></svg></div>;
 }
