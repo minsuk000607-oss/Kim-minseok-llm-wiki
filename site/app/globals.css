@@ -1,0 +1,13 @@
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, -apple-system, sans-serif; background: #0f1115; color: #e7e1d6; }
+a { color: #c8b07e; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+.sidebar { border-right: 1px solid #2a2f38; padding: 1rem; background: #12151b; }
+.main { padding: 1.25rem; position: relative; }
+.card { background: #171b22; border: 1px solid #2d3440; border-radius: 12px; padding: 1rem; }
+.grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.hero { border-radius: 14px; padding: 1.2rem; background: linear-gradient(120deg, #1d2430 0%, #13171d 100%); border: 1px solid #2e3744; margin-bottom: 1rem; }
+.tag { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid #3b4250; margin: 0 0.3rem 0.3rem 0; font-size: 0.8rem; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .sidebar { border-right: none; border-bottom: 1px solid #2a2f38; } }
