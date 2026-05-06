@@ -5,7 +5,7 @@ title: Decision Rules
 category: CORE
 tags: [decision-rules, source-hierarchy, core]
 review_status: draft
-evidence_status: manual
+evidence_status: reviewed
 rag_check_frequency: manual
 ---
 

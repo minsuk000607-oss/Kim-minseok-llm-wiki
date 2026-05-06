@@ -5,7 +5,7 @@ title: Identity
 category: CORE
 tags: [identity, core, second-brain]
 review_status: draft
-evidence_status: manual
+evidence_status: reviewed
 rag_check_frequency: manual
 ---
 

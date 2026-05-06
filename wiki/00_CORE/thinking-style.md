@@ -5,7 +5,7 @@ title: Thinking Style
 category: CORE
 tags: [thinking-style, core, reasoning]
 review_status: draft
-evidence_status: manual
+evidence_status: reviewed
 rag_check_frequency: manual
 ---
 
