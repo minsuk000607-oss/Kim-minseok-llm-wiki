@@ -1,0 +1,17 @@
+{
+  "name": "kim-minseok-llm-wiki",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "rag:index": "node --loader tsx scripts/rag-index.ts",
+    "rag:due": "node --loader tsx scripts/rag-check-due.ts",
+    "rag:search": "node --loader tsx scripts/rag-search-evidence.ts",
+    "rag:check": "node --loader tsx scripts/rag-check-document.ts",
+    "rag:candidates": "node --loader tsx scripts/rag-update-candidates.ts",
+    "rag:apply": "node --loader tsx scripts/rag-apply-approved.ts",
+    "rag:cycle": "node --loader tsx scripts/rag-review-cycle.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.6"
+  }
+}
