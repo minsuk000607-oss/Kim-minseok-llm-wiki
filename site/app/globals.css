@@ -1,0 +1,18 @@
+:root { color-scheme: dark; }
+*{box-sizing:border-box}
+body{margin:0;background:#0c111b;color:#e6e6e6;font-family:Inter,system-ui,sans-serif}
+.app-shell{display:grid;grid-template-columns:280px 1fr;min-height:100vh;background:radial-gradient(circle at 20% 0%,#1b2a44 0%,#0c111b 55%)}
+.sidebar{padding:1.25rem;border-right:1px solid #2a3342;position:sticky;top:0;height:100vh;overflow:auto;background:rgba(10,14,22,.7);backdrop-filter:blur(5px)}
+.brand{font-weight:700;color:#c6dbff;text-decoration:none;display:block;margin-bottom:1rem}
+.sidebar a{color:#adc7ff;text-decoration:none}
+main{padding:1.5rem}
+.hero{padding:1.2rem;border:1px solid #2a3342;border-radius:14px;background:linear-gradient(135deg, rgba(124,95,255,.2), rgba(73,140,255,.12));position:relative;overflow:hidden}
+.hero:after{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.11) 1px, transparent 1px);background-size:20px 20px;opacity:.15}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem}
+.card{border:1px solid #2a3342;background:#101827;padding:1rem;border-radius:10px}
+.card h3{margin:0 0 .4rem}
+.card a{color:#d6e4ff;text-decoration:none}
+.tags{display:flex;gap:.4rem;flex-wrap:wrap}.tags span{font-size:.8rem;background:#25314a;padding:.2rem .45rem;border-radius:999px}
+.markdown-body{line-height:1.7}.markdown-body a{color:#9cc1ff}
+input,button{background:#0e1524;color:#e6e6e6;border:1px solid #33415e;padding:.55rem .7rem;border-radius:8px}
+@media (max-width: 900px){.app-shell{grid-template-columns:1fr}.sidebar{height:auto;position:relative;border-right:none;border-bottom:1px solid #2a3342}}
