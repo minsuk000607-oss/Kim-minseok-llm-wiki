@@ -12,12 +12,29 @@ function resolveWikiRoot() {
 
 const root = resolveWikiRoot();
 const out = path.resolve(process.cwd(), 'wiki-index.json');
+const EXCLUDED_TOP_LEVEL_DIRS = new Set(['50_PROMPTS', '90_LOGS']);
 
-function walk(dir) {
+function shouldSkip(fullPath, rootDir) {
+  const relative = path.relative(rootDir, fullPath);
+  const segments = relative.split(path.sep);
+  if (segments[0] && EXCLUDED_TOP_LEVEL_DIRS.has(segments[0])) return true;
+  if (relative.startsWith(path.join('00_CORE', 'wiki'))) return true;
+  if (!fullPath.endsWith('.md')) return true;
+  return path.basename(fullPath) === '.gitkeep';
+}
+
+function hasValidFrontmatter(file) {
+  const parsed = matter(fs.readFileSync(file, 'utf8'));
+  return typeof parsed.data?.slug === 'string' && parsed.data.slug.trim().length > 0;
+}
+
+function walk(dir, rootDir = dir) {
+  if (!fs.existsSync(dir)) return [];
+
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) return walk(full);
-    return full.endsWith('.md') ? [full] : [];
+    if (entry.isDirectory()) return walk(full, rootDir);
+    return shouldSkip(full, rootDir) ? [] : [full];
   });
 }
 
@@ -27,10 +44,16 @@ if (!root) {
   process.exit(0);
 }
 
-const docs = walk(root).map((file) => {
-  const parsed = matter(fs.readFileSync(file, 'utf8'));
-  const slug = parsed.data.slug ?? path.basename(file, '.md');
-  return { slug, title: parsed.data.title ?? slug, content: parsed.content.slice(0, 5000) };
-});
+const docs = walk(root)
+  .filter((file) => {
+    const relative = path.relative(root, file);
+    if (relative.startsWith('00_CORE')) return hasValidFrontmatter(file);
+    return true;
+  })
+  .map((file) => {
+    const parsed = matter(fs.readFileSync(file, 'utf8'));
+    const slug = parsed.data.slug ?? path.basename(file, '.md');
+    return { slug, title: parsed.data.title ?? slug, content: parsed.content.slice(0, 5000) };
+  });
 
 fs.writeFileSync(out, JSON.stringify(docs, null, 2));

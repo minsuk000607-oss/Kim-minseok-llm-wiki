@@ -31,32 +31,54 @@ if (!GENERATED_ROOT) {
   console.warn('[wiki] Could not find generated directory. Checked: ./generated and ../generated. Generated blocks will be empty.');
 }
 
-function walk(dir: string): string[] {
+const EXCLUDED_TOP_LEVEL_DIRS = new Set(['50_PROMPTS', '90_LOGS']);
+
+function shouldSkipWikiFile(fullPath: string, rootDir: string): boolean {
+  const relative = path.relative(rootDir, fullPath);
+  const segments = relative.split(path.sep);
+  if (segments[0] && EXCLUDED_TOP_LEVEL_DIRS.has(segments[0])) return true;
+  if (relative.startsWith(path.join('00_CORE', 'wiki'))) return true;
+  if (!fullPath.endsWith('.md')) return true;
+  return path.basename(fullPath) === '.gitkeep';
+}
+
+function walk(dir: string, rootDir = dir): string[] {
   if (!fs.existsSync(dir)) return [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   return entries.flatMap((entry) => {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) return walk(full);
-    return full.endsWith('.md') ? [full] : [];
+    if (entry.isDirectory()) return walk(full, rootDir);
+    return shouldSkipWikiFile(full, rootDir) ? [] : [full];
   });
+}
+
+function hasValidFrontmatter(file: string): boolean {
+  const parsed = matter(fs.readFileSync(file, 'utf8'));
+  return typeof parsed.data?.slug === 'string' && parsed.data.slug.trim().length > 0;
 }
 
 export const getAllWikiPages = cache(function getAllWikiPages(): WikiPage[] {
   if (!WIKI_ROOT) return [];
 
-  return walk(WIKI_ROOT).map((file) => {
-    const raw = fs.readFileSync(file, 'utf8');
-    const parsed = matter(raw);
-    const slug = parsed.data.slug ?? path.basename(file, '.md');
-    return {
-      slug,
-      title: parsed.data.title ?? slug,
-      category: parsed.data.category ?? 'uncategorized',
-      tags: Array.isArray(parsed.data.tags) ? parsed.data.tags : [],
-      content: parsed.content,
-      sourcePath: path.relative(path.dirname(WIKI_ROOT), file)
-    };
-  });
+  return walk(WIKI_ROOT)
+    .filter((file) => {
+      const relative = path.relative(WIKI_ROOT, file);
+      if (relative.startsWith('00_CORE')) return hasValidFrontmatter(file);
+      return true;
+    })
+    .map((file) => {
+      const raw = fs.readFileSync(file, 'utf8');
+      const parsed = matter(raw);
+      const slug = parsed.data.slug ?? path.basename(file, '.md');
+      return {
+        slug,
+        title: parsed.data.title ?? slug,
+        category: parsed.data.category ?? 'uncategorized',
+        tags: Array.isArray(parsed.data.tags) ? parsed.data.tags : [],
+        content: parsed.content,
+        sourcePath: path.relative(path.dirname(WIKI_ROOT), file)
+      };
+    });
 });
 
 export function getPageBySlug(slug: string): WikiPage | undefined {
@@ -83,5 +105,9 @@ export function getGeneratedBlocks(type: 'insights' | 'papers' | 'relations', sl
 }
 
 export function convertWikiLinks(content: string): string {
-  return content.replace(/\[\[([^\]]+)\]\]/g, (_, target: string) => `[${target}](/wiki/${target.trim()})`);
+  return content.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, target: string, label?: string) => {
+    const cleanTarget = target.trim();
+    const cleanLabel = (label ?? target).trim();
+    return `[${cleanLabel}](/wiki/${cleanTarget})`;
+  });
 }
