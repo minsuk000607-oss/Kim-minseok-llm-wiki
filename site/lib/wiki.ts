@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { cache } from 'react';
 
 export type WikiPage = {
   slug: string;
@@ -11,8 +12,24 @@ export type WikiPage = {
   sourcePath: string;
 };
 
-const WIKI_ROOT = path.resolve(process.cwd(), '..', 'wiki');
-const GENERATED_ROOT = path.resolve(process.cwd(), '..', 'generated');
+function resolveContentRoot(target: 'wiki' | 'generated'): string | null {
+  const candidates = [
+    path.resolve(process.cwd(), target),
+    path.resolve(process.cwd(), '..', target)
+  ];
+  return candidates.find((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) ?? null;
+}
+
+const WIKI_ROOT = resolveContentRoot('wiki');
+const GENERATED_ROOT = resolveContentRoot('generated');
+
+if (!WIKI_ROOT) {
+  console.warn('[wiki] Could not find wiki directory. Checked: ./wiki and ../wiki. Returning empty wiki documents.');
+}
+
+if (!GENERATED_ROOT) {
+  console.warn('[wiki] Could not find generated directory. Checked: ./generated and ../generated. Generated blocks will be empty.');
+}
 
 function walk(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
@@ -24,7 +41,9 @@ function walk(dir: string): string[] {
   });
 }
 
-export function getAllWikiPages(): WikiPage[] {
+export const getAllWikiPages = cache(function getAllWikiPages(): WikiPage[] {
+  if (!WIKI_ROOT) return [];
+
   return walk(WIKI_ROOT).map((file) => {
     const raw = fs.readFileSync(file, 'utf8');
     const parsed = matter(raw);
@@ -35,10 +54,10 @@ export function getAllWikiPages(): WikiPage[] {
       category: parsed.data.category ?? 'uncategorized',
       tags: Array.isArray(parsed.data.tags) ? parsed.data.tags : [],
       content: parsed.content,
-      sourcePath: path.relative(path.resolve(process.cwd(), '..'), file)
+      sourcePath: path.relative(path.dirname(WIKI_ROOT), file)
     };
   });
-}
+});
 
 export function getPageBySlug(slug: string): WikiPage | undefined {
   return getAllWikiPages().find((page) => page.slug === slug);
@@ -54,6 +73,8 @@ export function getCategories(): string[] {
 }
 
 export function getGeneratedBlocks(type: 'insights' | 'papers' | 'relations', slug: string): string[] {
+  if (!GENERATED_ROOT) return [];
+
   const dir = path.join(GENERATED_ROOT, type);
   if (!fs.existsSync(dir)) return [];
   return walk(dir)

@@ -1,7 +1,11 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
-import { convertWikiLinks, getBacklinks, getGeneratedBlocks, getPageBySlug } from '@/lib/wiki';
+import { convertWikiLinks, getAllWikiPages, getBacklinks, getGeneratedBlocks, getPageBySlug } from '@/lib/wiki';
+
+export async function generateStaticParams() {
+  return getAllWikiPages().map((p) => ({ slug: p.slug }));
+}
 
 export default function WikiPage({ params }: { params: { slug: string } }) {
   const page = getPageBySlug(params.slug);
@@ -20,9 +24,9 @@ export default function WikiPage({ params }: { params: { slug: string } }) {
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{convertWikiLinks(page.content)}</ReactMarkdown>
 
       <section><h2>Backlinks</h2><ul>{backlinks.map((b) => <li key={b.slug}><Link href={`/wiki/${b.slug}`}>{b.title}</Link></li>)}</ul></section>
-      <section><h2>Generated Insight Blocks</h2>{insights.map((x, i) => <pre key={i}>{x}</pre>)}</section>
-      <section><h2>Generated Paper Blocks</h2>{papers.map((x, i) => <pre key={i}>{x}</pre>)}</section>
-      <section><h2>Generated Relation Blocks</h2>{relations.map((x, i) => <pre key={i}>{x}</pre>)}</section>
+      <section><h2>Generated Insight Blocks</h2><p><strong>AI 생성 콘텐츠 — 검증 전</strong></p>{insights.map((x, i) => <pre key={i}>{x}</pre>)}</section>
+      <section><h2>Generated Paper Blocks</h2><p><strong>AI 생성 콘텐츠 — 검증 전</strong></p>{papers.map((x, i) => <pre key={i}>{x}</pre>)}</section>
+      <section><h2>Generated Relation Blocks</h2><p><strong>AI 생성 콘텐츠 — 검증 전</strong></p>{relations.map((x, i) => <pre key={i}>{x}</pre>)}</section>
     </article>
   );
 }

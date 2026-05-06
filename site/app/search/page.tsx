@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-
-const data = require('../../../wiki-index.json') as Array<{ slug: string; title: string; content: string }>;
+import data from '../../wiki-index.json';
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
