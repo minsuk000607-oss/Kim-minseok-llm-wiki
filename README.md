@@ -6,8 +6,9 @@
 
 Recommended Vercel settings:
 
-- Root Directory: `./`
-- Framework Preset: `Next.js`
+- Application Preset: `Next.js`
+- Root Directory: `site`
+- Install Command: `npm install`
 - Build Command: `npm run build`
-- Output Directory: `site/.next`
+- Output Directory: `.next`
 - Environment Variables: none required for MVP
