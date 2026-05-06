@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
-import { Sidebar } from '@/components/Sidebar';
-import { BackgroundNetworkPattern } from '@/components/BackgroundNetworkPattern';
+import { Sidebar } from '../components/Sidebar';
+import { BackgroundNetworkPattern } from '../components/BackgroundNetworkPattern';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getCategories } from '@/lib/wiki';
+import { getCategories } from '../lib/wiki';
 
 export function Sidebar() {
   const categories = getCategories().filter((category) => !['system', 'logs', 'prompts'].includes(category.toLowerCase()));

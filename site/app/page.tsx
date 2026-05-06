@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { getAllWikiPages, getDocumentImportanceScore, getSortedWikiPages } from '@/lib/wiki';
-import { HeroNetworkGraphic } from '@/components/HeroNetworkGraphic';
-import { DashboardCard } from '@/components/DashboardCard';
-import { TagBadge } from '@/components/TagBadge';
+import { getAllWikiPages, getDocumentImportanceScore, getSortedWikiPages } from '../lib/wiki';
+import { HeroNetworkGraphic } from '../components/HeroNetworkGraphic';
+import { DashboardCard } from '../components/DashboardCard';
+import { TagBadge } from '../components/TagBadge';
 
 function TopList({ pages }: { pages: ReturnType<typeof getAllWikiPages> }) {
   if (pages.length === 0) return <p>문서가 아직 없습니다.</p>;
