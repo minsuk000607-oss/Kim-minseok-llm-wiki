@@ -1,3 +1,17 @@
+---
+id: CORE-IDENTITY
+slug: identity
+title: Identity
+category: CORE
+tags:
+  - core
+  - identity
+  - principles
+review_status: draft
+evidence_status: manual
+rag_check_frequency: manual
+---
+
 # Identity
 
 나는 한의학, 신경과학, 자율신경계, 근막의학, IMS/MPS, 임상 추론을 통합하는 개인 LLM Wiki OS를 구축한다.

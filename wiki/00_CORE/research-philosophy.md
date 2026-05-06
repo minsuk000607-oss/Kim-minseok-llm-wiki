@@ -1,3 +1,17 @@
+---
+id: CORE-RESEARCH-PHILOSOPHY
+slug: research-philosophy
+title: Research Philosophy
+category: CORE
+tags:
+  - core
+  - research
+  - philosophy
+review_status: draft
+evidence_status: manual
+rag_check_frequency: manual
+---
+
 # TODO
 
 초안 작성 예정.

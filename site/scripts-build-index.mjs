@@ -14,6 +14,7 @@ const root = resolveWikiRoot();
 const out = path.resolve(process.cwd(), 'wiki-index.json');
 
 function walk(dir) {
+  if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) return walk(full);
