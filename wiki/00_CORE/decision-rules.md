@@ -1,3 +1,14 @@
+---
+id: CORE-DECISION-RULES
+slug: decision-rules
+title: Decision Rules
+category: CORE
+tags: [decision-rules, source-hierarchy, core]
+review_status: draft
+evidence_status: manual
+rag_check_frequency: manual
+---
+
 # Decision Rules
 
 ## 자료 판단 우선순위
