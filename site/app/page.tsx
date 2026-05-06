@@ -1,90 +1,37 @@
-import Link from 'next/link';
-import { getAllWikiPages, getDocumentImportanceScore, getSortedWikiPages } from '../lib/wiki';
+import { getAllWikiPages, getSortedWikiPages } from '../lib/wiki';
 import { HeroNetworkGraphic } from '../components/HeroNetworkGraphic';
-import { DashboardCard } from '../components/DashboardCard';
-import { TagBadge } from '../components/TagBadge';
-
-function TopList({ pages }: { pages: ReturnType<typeof getAllWikiPages> }) {
-  if (pages.length === 0) return <p>문서가 아직 없습니다.</p>;
-
-  return (
-    <ul style={{ margin: 0, paddingLeft: 20 }}>
-      {pages.map((page) => (
-        <li key={page.id} style={{ marginBottom: 8 }}>
-          <Link href={`/wiki/${page.slug}`}>{page.title}</Link>{' '}
-          <small style={{ color: '#94a3b8' }}>({page.category} · score {getDocumentImportanceScore(page).toFixed(2)})</small>
-          <div style={{ marginTop: 4 }}>
-            {page.tags.slice(0, 3).map((tag) => <TagBadge key={`${page.id}-${tag}`} tag={tag} />)}
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
+import { CategoryCard, DocCard, FeaturedDocCard, SectionHeader } from '../components/ui';
 
 export default function HomePage() {
   const pages = getAllWikiPages();
   const sorted = getSortedWikiPages(pages);
-  const pinned = sorted.filter((p) => p.pinned).slice(0, 8);
-  const clinicalTop = [...pages].sort((a, b) => b.clinical_priority - a.clinical_priority).slice(0, 8);
-  const researchTop = [...pages].sort((a, b) => b.research_priority - a.research_priority).slice(0, 8);
-  const foundationalTop = [...pages].sort((a, b) => b.foundational_priority - a.foundational_priority).slice(0, 8);
-
-  const categoryTop = Object.entries(
-    pages.reduce<Record<string, typeof pages>>((acc, page) => {
-      acc[page.category] = acc[page.category] ?? [];
-      acc[page.category].push(page);
-      return acc;
-    }, {})
-  )
-    .map(([category, categoryPages]) => ({
-      category,
-      top: getSortedWikiPages(categoryPages)[0]
-    }))
-    .filter((entry): entry is { category: string; top: (typeof pages)[number] } => Boolean(entry.top))
-    .sort((a, b) => getDocumentImportanceScore(b.top) - getDocumentImportanceScore(a.top));
-
-  if (pages.length === 0) {
-    return (
-      <div style={{ display: 'grid', gap: 16 }}>
-        <DashboardCard title="김민석 LLM Wiki">
-          <p>구조화된 임상/학술 추론을 위한 second-brain knowledge network.</p>
-          <HeroNetworkGraphic />
-        </DashboardCard>
-        <DashboardCard title="시작 가이드">
-          <p>Add markdown files under wiki/ or raw sources under raw/ and ingest them.</p>
-        </DashboardCard>
-      </div>
-    );
-  }
+  const pinned = sorted.filter((p) => p.pinned).slice(0, 4);
+  const recent = sorted.slice(0, 6);
+  const categories = Object.entries(pages.reduce<Record<string, number>>((a, p) => ((a[p.category] = (a[p.category] ?? 0) + 1), a), {}));
 
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
-      <DashboardCard title="김민석 LLM Wiki Dashboard">
-        <p>구조화된 임상/학술 추론을 위한 second-brain knowledge network.</p>
+    <div className="grid">
+      <section className="surface" style={{ padding: 24 }}>
+        <p style={{ margin: 0, color: '#9eb2d8', letterSpacing: '.1em', textTransform: 'uppercase', fontSize: 12 }}>Private Research Laboratory</p>
+        <h1 style={{ margin: '8px 0 10px', fontSize: '2rem' }}>김민석 LLM Wiki OS</h1>
+        <p style={{ color: 'var(--muted)', maxWidth: 740 }}>임상·신경과학·한의학 지식을 구조화해 사고를 확장하는 physician-scholar second brain platform.</p>
         <HeroNetworkGraphic />
-      </DashboardCard>
-      <DashboardCard title="Pinned Docs">
-        <TopList pages={pinned} />
-      </DashboardCard>
-      <DashboardCard title="Clinical Top Topics">
-        <TopList pages={clinicalTop} />
-      </DashboardCard>
-      <DashboardCard title="Research Top Topics">
-        <TopList pages={researchTop} />
-      </DashboardCard>
-      <DashboardCard title="Foundational Core Docs">
-        <TopList pages={foundationalTop} />
-      </DashboardCard>
-      <DashboardCard title="Category Top Docs">
-        <ul style={{ margin: 0, paddingLeft: 20 }}>
-          {categoryTop.map(({ category, top }) => (
-            <li key={category} style={{ marginBottom: 8 }}>
-              <Link href={`/category/${encodeURIComponent(category)}`}>{category}</Link>: <Link href={`/wiki/${top.slug}`}>{top.title}</Link>
-            </li>
-          ))}
-        </ul>
-      </DashboardCard>
+      </section>
+
+      <SectionHeader title="Pinned Docs" />
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px,1fr))' }}>{pinned.map((p) => <FeaturedDocCard key={p.id} href={`/wiki/${p.slug}`} title={p.title} meta={`${p.category} · ${p.review_status}`} snippet={p.content.slice(0, 90)} />)}</div>
+
+      <SectionHeader title="Recent Docs" />
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px,1fr))' }}>{recent.map((p) => <DocCard key={p.id} href={`/wiki/${p.slug}`} title={p.title} meta={`${p.category}`} />)}</div>
+
+      <SectionHeader title="Top Categories" />
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px,1fr))' }}>{categories.map(([c,n]) => <CategoryCard key={c} category={c} count={n} />)}</div>
+
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px,1fr))' }}>
+        <section className="surface" style={{ padding: 16 }}><h3>Clinical</h3><p style={{color:'var(--muted)'}}>치료 우선순위 기반 문서 추적.</p></section>
+        <section className="surface" style={{ padding: 16 }}><h3>Neuro</h3><p style={{color:'var(--muted)'}}>ANS, fascia, pain circuitry 연결 구조.</p></section>
+        <section className="surface" style={{ padding: 16 }}><h3>Projects</h3><p style={{color:'var(--muted)'}}>논문 합성 및 진료 지식 그래프 확장.</p></section>
+      </div>
     </div>
   );
 }
