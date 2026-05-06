@@ -3,9 +3,9 @@ import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { TagBadge } from '@/components/TagBadge';
-import { GeneratedBlockShell } from '@/components/GeneratedBlockShell';
-import { convertWikiLinks, getAllWikiPages, getBacklinks, getGeneratedBlocks, getPageBySlug } from '@/lib/wiki';
+import { TagBadge } from '../../../components/TagBadge';
+import { GeneratedBlockShell } from '../../../components/GeneratedBlockShell';
+import { convertWikiLinks, getAllWikiPages, getBacklinks, getGeneratedBlocks, getPageBySlug } from '../../../lib/wiki';
 
 export async function generateStaticParams() {
   return getAllWikiPages().map((p) => ({ slug: p.slug }));

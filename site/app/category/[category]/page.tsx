@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getAllWikiPages } from '@/lib/wiki';
+import { getAllWikiPages } from '../../../lib/wiki';
 
 export async function generateStaticParams() {
   const pages = getAllWikiPages();
