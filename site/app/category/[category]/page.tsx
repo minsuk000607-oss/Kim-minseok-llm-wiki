@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getAllWikiPages } from '@/lib/wiki';
 
@@ -10,6 +11,7 @@ export async function generateStaticParams() {
 export default function CategoryPage({ params }: { params: { category: string } }) {
   const category = decodeURIComponent(params.category);
   const pages = getAllWikiPages().filter((page) => page.category === category);
+  if (pages.length === 0) notFound();
   return (
     <div>
       <h1>Category: {category}</h1>

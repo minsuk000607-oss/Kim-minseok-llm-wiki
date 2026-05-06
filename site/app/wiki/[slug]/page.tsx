@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
@@ -9,7 +10,7 @@ export async function generateStaticParams() {
 
 export default function WikiPage({ params }: { params: { slug: string } }) {
   const page = getPageBySlug(params.slug);
-  if (!page) return <div>Not found</div>;
+  if (!page) notFound();
 
   const backlinks = getBacklinks(params.slug);
   const insights = getGeneratedBlocks('insights', params.slug);

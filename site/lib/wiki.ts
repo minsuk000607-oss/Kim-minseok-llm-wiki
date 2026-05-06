@@ -41,10 +41,19 @@ function walk(dir: string): string[] {
   });
 }
 
+function isExcludedWikiPath(file: string): boolean {
+  const normalized = file.split(path.sep).join('/');
+  // Exclude prompt manuals and logs from public wiki indexing.
+  if (normalized.includes('/wiki/50_PROMPTS/') || normalized.includes('/wiki/90_LOGS/')) return true;
+  // Exclude accidental nested wiki trees (e.g. wiki/00_CORE/wiki/**).
+  if (normalized.includes('/wiki/00_CORE/wiki/')) return true;
+  return false;
+}
+
 export const getAllWikiPages = cache(function getAllWikiPages(): WikiPage[] {
   if (!WIKI_ROOT) return [];
 
-  return walk(WIKI_ROOT).map((file) => {
+  return walk(WIKI_ROOT).filter((file) => !isExcludedWikiPath(file)).map((file) => {
     const raw = fs.readFileSync(file, 'utf8');
     const parsed = matter(raw);
     const slug = parsed.data.slug ?? path.basename(file, '.md');
@@ -83,5 +92,9 @@ export function getGeneratedBlocks(type: 'insights' | 'papers' | 'relations', sl
 }
 
 export function convertWikiLinks(content: string): string {
-  return content.replace(/\[\[([^\]]+)\]\]/g, (_, target: string) => `[${target}](/wiki/${target.trim()})`);
+  return content.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, rawTarget: string, rawLabel?: string) => {
+    const target = rawTarget.trim();
+    const label = (rawLabel ?? rawTarget).trim();
+    return `[${label}](/wiki/${target})`;
+  });
 }

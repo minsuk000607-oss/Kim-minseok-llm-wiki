@@ -1,3 +1,17 @@
+---
+id: CORE-THINKING-STYLE
+slug: thinking-style
+title: Thinking Style
+category: CORE
+tags:
+  - core
+  - thinking
+  - reasoning
+review_status: draft
+evidence_status: manual
+rag_check_frequency: manual
+---
+
 # Thinking Style
 
 나는 단편 정보보다 구조를 우선한다.

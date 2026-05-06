@@ -1,3 +1,17 @@
+---
+id: CORE-DECISION-RULES
+slug: decision-rules
+title: Decision Rules
+category: CORE
+tags:
+  - core
+  - decision
+  - rules
+review_status: draft
+evidence_status: manual
+rag_check_frequency: manual
+---
+
 # Decision Rules
 
 ## 자료 판단 우선순위
