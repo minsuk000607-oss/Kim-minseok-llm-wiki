@@ -5,7 +5,7 @@ export function Sidebar() {
   const categories = getCategories();
 
   return (
-    <aside style={{ minWidth: 240, borderRight: '1px solid #ddd', paddingRight: 16 }}>
+    <aside style={{ minWidth: 240, borderRight: '1px solid #334155', paddingRight: 16, color: '#e2e8f0' }}>
       <h3>Navigation</h3>
       <ul>
         <li><Link href="/">Home</Link></li>

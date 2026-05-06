@@ -4,8 +4,10 @@ import matter from 'gray-matter';
 import { cache } from 'react';
 
 export type WikiPage = {
+  id: string;
   slug: string;
   title: string;
+  aliases: string[];
   category: string;
   tags: string[];
   content: string;
@@ -70,9 +72,13 @@ export const getAllWikiPages = cache(function getAllWikiPages(): WikiPage[] {
       const raw = fs.readFileSync(file, 'utf8');
       const parsed = matter(raw);
       const slug = parsed.data.slug ?? path.basename(file, '.md');
+      const parsedId = typeof parsed.data.id === 'string' ? parsed.data.id.trim() : '';
+      const id = parsedId.length > 0 ? parsedId : slug;
       return {
+        id,
         slug,
         title: parsed.data.title ?? slug,
+        aliases: Array.isArray(parsed.data.aliases) ? parsed.data.aliases.filter((alias): alias is string => typeof alias === 'string') : [],
         category: parsed.data.category ?? 'uncategorized',
         tags: Array.isArray(parsed.data.tags) ? parsed.data.tags : [],
         content: parsed.content,
@@ -94,20 +100,42 @@ export function getCategories(): string[] {
   return [...new Set(getAllWikiPages().map((p) => p.category))].sort();
 }
 
-export function getGeneratedBlocks(type: 'insights' | 'papers' | 'relations', slug: string): string[] {
+export function getGeneratedBlocks(type: 'insights' | 'papers' | 'relations', documentId: string): string[] {
   if (!GENERATED_ROOT) return [];
 
   const dir = path.join(GENERATED_ROOT, type);
-  if (!fs.existsSync(dir)) return [];
-  return walk(dir)
-    .filter((file) => path.basename(file).includes(slug))
-    .map((file) => fs.readFileSync(file, 'utf8'));
+  if (!fs.existsSync(dir) || !documentId) return [];
+
+  const suffixMap = {
+    insights: '.insight.json',
+    papers: '.papers.json',
+    relations: '.relations.json'
+  } as const;
+
+  const exactFile = path.join(dir, `${documentId}${suffixMap[type]}`);
+  if (!fs.existsSync(exactFile)) return [];
+  return [fs.readFileSync(exactFile, 'utf8')];
+}
+
+function resolveWikiTarget(target: string): WikiPage | undefined {
+  const normalizedTarget = target.trim().toLowerCase();
+  if (!normalizedTarget) return undefined;
+
+  return getAllWikiPages().find((page) => {
+    if (page.slug.toLowerCase() === normalizedTarget) return true;
+    if (page.title.toLowerCase() === normalizedTarget) return true;
+    return page.aliases.some((alias) => alias.toLowerCase() === normalizedTarget);
+  });
 }
 
 export function convertWikiLinks(content: string): string {
   return content.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, target: string, label?: string) => {
     const cleanTarget = target.trim();
     const cleanLabel = (label ?? target).trim();
-    return `[${cleanLabel}](/wiki/${cleanTarget})`;
+    const resolvedPage = resolveWikiTarget(cleanTarget);
+    if (resolvedPage) {
+      return `[${cleanLabel}](/wiki/${resolvedPage.slug})`;
+    }
+    return `${cleanLabel} (unresolved: ${cleanTarget})`;
   });
 }
