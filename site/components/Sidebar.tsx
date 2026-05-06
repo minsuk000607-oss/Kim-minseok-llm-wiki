@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { getCategories } from '@/lib/wiki';
 
 export function Sidebar() {
-  const categories = getCategories();
+  const categories = getCategories().filter((category) => !['system', 'logs', 'prompts'].includes(category.toLowerCase()));
 
   return (
     <aside style={{ minWidth: 240, borderRight: '1px solid #334155', paddingRight: 16, color: '#e2e8f0' }}>

@@ -12,6 +12,14 @@ export type WikiPage = {
   tags: string[];
   content: string;
   sourcePath: string;
+  pinned: boolean;
+  clinical_priority: number;
+  research_priority: number;
+  foundational_priority: number;
+  clinical_weight: number;
+  review_status?: string;
+  evidence_status?: string;
+  rag_check_frequency?: string;
 };
 
 function resolveContentRoot(target: 'wiki' | 'generated'): string | null {
@@ -33,7 +41,7 @@ if (!GENERATED_ROOT) {
   console.warn('[wiki] Could not find generated directory. Checked: ./generated and ../generated. Generated blocks will be empty.');
 }
 
-const EXCLUDED_TOP_LEVEL_DIRS = new Set(['50_PROMPTS', '90_LOGS']);
+const EXCLUDED_TOP_LEVEL_DIRS = new Set(['50_PROMPTS', '90_LOGS', 'system', 'logs', 'prompts']);
 const WIKILINK_REGEX = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g;
 
 function shouldSkipWikiFile(fullPath: string, rootDir: string): boolean {
@@ -60,6 +68,24 @@ function hasValidFrontmatter(file: string): boolean {
   return typeof parsed.data?.slug === 'string' && parsed.data.slug.trim().length > 0;
 }
 
+function toSafeNumber(value: unknown, fallback = 3): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+export function getDocumentImportanceScore(page: WikiPage): number {
+  const score =
+    page.clinical_priority * 0.35 +
+    page.research_priority * 0.25 +
+    page.foundational_priority * 0.25 +
+    page.clinical_weight * 0.15;
+
+  return page.pinned ? score + 2 : score;
+}
+
+export function getSortedWikiPages(pages: WikiPage[]): WikiPage[] {
+  return [...pages].sort((a, b) => getDocumentImportanceScore(b) - getDocumentImportanceScore(a));
+}
+
 export const getAllWikiPages = cache(function getAllWikiPages(): WikiPage[] {
   if (!WIKI_ROOT) return [];
 
@@ -83,7 +109,15 @@ export const getAllWikiPages = cache(function getAllWikiPages(): WikiPage[] {
         category: parsed.data.category ?? 'uncategorized',
         tags: Array.isArray(parsed.data.tags) ? parsed.data.tags : [],
         content: parsed.content,
-        sourcePath: path.relative(path.dirname(WIKI_ROOT), file)
+        sourcePath: path.relative(path.dirname(WIKI_ROOT), file),
+        pinned: Boolean(parsed.data.pinned ?? false),
+        clinical_priority: toSafeNumber(parsed.data.clinical_priority, 3),
+        research_priority: toSafeNumber(parsed.data.research_priority, 3),
+        foundational_priority: toSafeNumber(parsed.data.foundational_priority, 3),
+        clinical_weight: toSafeNumber(parsed.data.clinical_weight, 3),
+        review_status: typeof parsed.data.review_status === 'string' ? parsed.data.review_status : undefined,
+        evidence_status: typeof parsed.data.evidence_status === 'string' ? parsed.data.evidence_status : undefined,
+        rag_check_frequency: typeof parsed.data.rag_check_frequency === 'string' ? parsed.data.rag_check_frequency : undefined
       };
     });
 });
