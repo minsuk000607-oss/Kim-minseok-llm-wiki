@@ -2,7 +2,15 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 
-const root = path.resolve(process.cwd(), '..', 'wiki');
+function resolveWikiRoot() {
+  const candidates = [
+    path.resolve(process.cwd(), 'wiki'),
+    path.resolve(process.cwd(), '..', 'wiki')
+  ];
+  return candidates.find((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) ?? null;
+}
+
+const root = resolveWikiRoot();
 const out = path.resolve(process.cwd(), 'wiki-index.json');
 
 function walk(dir) {
@@ -11,6 +19,12 @@ function walk(dir) {
     if (entry.isDirectory()) return walk(full);
     return full.endsWith('.md') ? [full] : [];
   });
+}
+
+if (!root) {
+  console.warn('[build-index] Could not find wiki directory. Checked: ./wiki and ../wiki. Writing empty index.');
+  fs.writeFileSync(out, JSON.stringify([], null, 2));
+  process.exit(0);
 }
 
 const docs = walk(root).map((file) => {
