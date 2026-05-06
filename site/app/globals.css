@@ -1,0 +1,16 @@
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #101019; color: #e9e2d0; }
+.shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+.sidebar { padding: 20px; border-right: 1px solid #333; background: rgba(15,15,25,.8); position: sticky; top: 0; height: 100vh; }
+.sidebar nav { display: flex; flex-direction: column; gap: 10px; }
+main { padding: 24px; position: relative; z-index: 1; }
+.network-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at 20% 20%, rgba(104,88,140,.2), transparent 35%), radial-gradient(circle at 80% 20%, rgba(80,120,140,.15), transparent 30%), #101019; }
+a { color: #b7c8ff; text-decoration: none; }
+.card, .hero { background: rgba(28, 28, 40, 0.85); border: 1px solid #3a3a50; padding: 16px; border-radius: 12px; margin: 14px 0; }
+.hero svg { width: 100%; height: 120px; stroke: #8da0d9; fill: #d6c69a; }
+.tag { display: inline-block; margin-right: 8px; padding: 2px 8px; background: #2f3448; border-radius: 999px; }
+@media (max-width: 860px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+}
