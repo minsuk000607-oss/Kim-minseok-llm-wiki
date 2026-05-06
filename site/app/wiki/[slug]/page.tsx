@@ -15,10 +15,10 @@ export default function WikiPage({ params }: { params: { slug: string } }) {
   const insights = getGeneratedBlocks('insights', page.id);
   const papers = getGeneratedBlocks('papers', page.id);
   const relations = getGeneratedBlocks('relations', page.id);
-  return <article className="grid">
+  return <article className="grid page-stack">
     <section className="surface" style={{padding:20}}>
       <h1 style={{margin:'0 0 8px'}}>{page.title}</h1>
-      <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+      <div className="meta-wrap" style={{display:'flex',flexWrap:'wrap',gap:8}}>
         <MetadataBadge label="id" value={page.id}/><MetadataBadge label="slug" value={page.slug}/><MetadataBadge label="category" value={page.category}/><MetadataBadge label="review" value={page.review_status ?? 'unknown'}/><MetadataBadge label="evidence" value={(page as any).evidence_status ?? 'unknown'}/>
       </div>
       <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10}}>{page.tags.map((t)=> <TagChip key={t} tag={t} />)}</div>
@@ -27,7 +27,7 @@ export default function WikiPage({ params }: { params: { slug: string } }) {
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{convertWikiLinks(page.content)}</ReactMarkdown>
     </section>
     <RelatedDocsPanel><ul>{backlinks.map((b)=><li key={b.id}><Link href={`/wiki/${b.slug}`}>{b.title}</Link></li>)}</ul></RelatedDocsPanel>
-    {insights.length>0 && <AIInsightPanel title="Generated Insight Blocks">{insights.map((x,i)=><pre key={i}>{x}</pre>)}</AIInsightPanel>}
+    {insights.length>0 && <AIInsightPanel title="AI Generated Insight Blocks">{insights.map((x,i)=><pre key={i}>{x}</pre>)}</AIInsightPanel>}
     {papers.length>0 && <AIInsightPanel title="Generated Paper Blocks">{papers.map((x,i)=><pre key={i}>{x}</pre>)}</AIInsightPanel>}
     {relations.length>0 && <AIInsightPanel title="Generated Relation Blocks">{relations.map((x,i)=><pre key={i}>{x}</pre>)}</AIInsightPanel>}
   </article>;
