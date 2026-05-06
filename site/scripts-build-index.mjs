@@ -53,7 +53,18 @@ const docs = walk(root)
   .map((file) => {
     const parsed = matter(fs.readFileSync(file, 'utf8'));
     const slug = parsed.data.slug ?? path.basename(file, '.md');
-    return { slug, title: parsed.data.title ?? slug, content: parsed.content.slice(0, 5000) };
+    const id = typeof parsed.data.id === 'string' && parsed.data.id.trim().length > 0 ? parsed.data.id.trim() : slug;
+    const aliases = Array.isArray(parsed.data.aliases) ? parsed.data.aliases.filter((alias) => typeof alias === 'string') : [];
+    const tags = Array.isArray(parsed.data.tags) ? parsed.data.tags.filter((tag) => typeof tag === 'string') : [];
+    return {
+      id,
+      slug,
+      title: parsed.data.title ?? slug,
+      aliases,
+      category: parsed.data.category ?? 'uncategorized',
+      tags,
+      content: parsed.content.slice(0, 5000)
+    };
   });
 
 fs.writeFileSync(out, JSON.stringify(docs, null, 2));
